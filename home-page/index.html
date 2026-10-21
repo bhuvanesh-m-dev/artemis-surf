@@ -1,0 +1,2343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Artemis Surf — Explore freely. Browse privately. Premium glassmorphism browser start page." />
+  <meta name="theme-color" content="#080B14" />
+  <title>Artemis Surf — New Tab</title>
+
+  <!-- Google Fonts: Inter & Plus Jakarta Sans for futuristic elegance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- External Stylesheet for GitHub Pages deployment -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Inline Critical & Complete Glassmorphism Stylesheet Fallback so live preview works seamlessly even if single-file preview is used -->
+  <style id="inline-preview-styles">
+    :root {
+      --bg-navy: #080B14;
+      --text-primary: #F7F8FC;
+      --text-secondary: #B7C0D3;
+      --accent-violet: #A78BFA;
+      --accent-cyan: #67E8F9;
+      --accent-pink: #F472B6;
+      --danger: #FB7185;
+      --success: #34D399;
+
+      /* Balanced Glass Default */
+      --glass-bg: rgba(255, 255, 255, 0.10);
+      --glass-bg-hover: rgba(255, 255, 255, 0.16);
+      --glass-bg-active: rgba(255, 255, 255, 0.22);
+      --glass-modal-bg: rgba(13, 18, 34, 0.72);
+      --glass-border: rgba(255, 255, 255, 0.22);
+      --glass-border-strong: rgba(255, 255, 255, 0.36);
+      --glass-blur: 18px;
+      --glass-saturate: 165%;
+      --glass-shadow: 0 12px 36px -8px rgba(4, 6, 14, 0.55), 0 2px 10px 0 rgba(0, 0, 0, 0.28);
+      --overlay-opacity: 0.36;
+
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 22px;
+      --radius-xl: 28px;
+      --radius-full: 9999px;
+
+      --transition-fast: 160ms cubic-bezier(0.22, 1, 0.36, 1);
+      --transition-smooth: 320ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Glass Mode Variants */
+    body[data-glass="clear"] {
+      --glass-bg: rgba(255, 255, 255, 0.055);
+      --glass-bg-hover: rgba(255, 255, 255, 0.11);
+      --glass-modal-bg: rgba(10, 14, 28, 0.56);
+      --glass-border: rgba(255, 255, 255, 0.17);
+      --glass-blur: 8px;
+      --glass-saturate: 135%;
+      --overlay-opacity: 0.26;
+    }
+
+    body[data-glass="balanced"] {
+      --glass-bg: rgba(255, 255, 255, 0.10);
+      --glass-bg-hover: rgba(255, 255, 255, 0.16);
+      --glass-modal-bg: rgba(13, 18, 34, 0.72);
+      --glass-border: rgba(255, 255, 255, 0.22);
+      --glass-blur: 18px;
+      --glass-saturate: 165%;
+      --overlay-opacity: 0.36;
+    }
+
+    body[data-glass="frosted"] {
+      --glass-bg: rgba(255, 255, 255, 0.155);
+      --glass-bg-hover: rgba(255, 255, 255, 0.22);
+      --glass-modal-bg: rgba(14, 19, 38, 0.84);
+      --glass-border: rgba(255, 255, 255, 0.28);
+      --glass-blur: 30px;
+      --glass-saturate: 195%;
+      --overlay-opacity: 0.44;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      background-color: var(--bg-navy);
+      color: var(--text-primary);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    .wallpaper-stage {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 25%, #1d2449 0%, #080B14 100%);
+    }
+
+    .wallpaper-layer {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      opacity: 0;
+      transform: scale(1.015);
+      transition: opacity 900ms cubic-bezier(0.22, 1, 0.36, 1), transform 1400ms ease-out;
+      will-change: opacity, transform;
+    }
+
+    .wallpaper-layer.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .wallpaper-overlay {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 18%, rgba(167, 139, 250, 0.12) 0%, transparent 55%),
+        radial-gradient(circle at 80% 80%, rgba(103, 232, 249, 0.10) 0%, transparent 50%),
+        linear-gradient(180deg, rgba(8, 11, 20, calc(var(--overlay-opacity) * 0.85)) 0%, rgba(8, 11, 20, var(--overlay-opacity)) 55%, rgba(8, 11, 20, calc(var(--overlay-opacity) + 0.18)) 100%);
+      transition: background var(--transition-smooth);
+      pointer-events: none;
+    }
+
+    /* Glass utility */
+    .glass-surface {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    }
+
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      .glass-surface {
+        background: rgba(15, 22, 42, 0.88);
+      }
+    }
+
+    /* Layout Container */
+    .app-shell {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 1.1rem clamp(1rem, 3vw, 2.5rem) 1.25rem;
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    .top-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: var(--radius-full);
+      transition: background var(--transition-fast), border-color var(--transition-fast);
+    }
+
+    .brand-cluster {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(167, 139, 250, 0.28), rgba(103, 232, 249, 0.22));
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      box-shadow: 0 0 18px rgba(167, 139, 250, 0.25);
+      flex-shrink: 0;
+    }
+
+    .brand-text-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .brand-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      background: linear-gradient(90deg, #FFFFFF 0%, #E2E8F0 45%, var(--accent-cyan) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .brand-tagline {
+      font-size: 0.76rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.02em;
+      opacity: 0.9;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .glass-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.48rem 0.82rem;
+      border-radius: var(--radius-full);
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+      transition: transform var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .glass-btn:hover {
+      background: var(--glass-bg-hover);
+      border-color: var(--glass-border-strong);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28), 0 0 12px rgba(167, 139, 250, 0.2);
+    }
+
+    .glass-btn:active {
+      transform: translateY(0);
+    }
+
+    .glass-btn.active-mode {
+      background: linear-gradient(135deg, rgba(167, 139, 250, 0.35), rgba(103, 232, 249, 0.25));
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 16px rgba(103, 232, 249, 0.32);
+    }
+
+    .glass-btn svg {
+      width: 15px;
+      height: 15px;
+      stroke-width: 2;
+      flex-shrink: 0;
+    }
+
+    /* Main Content Area */
+    .main-stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.4rem;
+      padding: 0.75rem 0 1rem;
+      width: 100%;
+    }
+
+    .hero-clock-section {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.28rem;
+      text-shadow: 0 4px 24px rgba(0, 0, 0, 0.55);
+    }
+
+    .clock-time {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: clamp(2.65rem, 5.2vw, 4.35rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      background: linear-gradient(180deg, #FFFFFF 20%, rgba(247, 248, 252, 0.84) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 6px 20px rgba(8, 11, 20, 0.5));
+    }
+
+    .clock-date-row {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-size: clamp(0.86rem, 1.3vw, 1rem);
+      font-weight: 500;
+      color: var(--accent-cyan);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .clock-greeting {
+      font-size: clamp(0.85rem, 1.2vw, 0.96rem);
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-top: 0.1rem;
+    }
+
+    .search-wrapper {
+      width: 100%;
+      max-width: 690px;
+      position: relative;
+      z-index: 20;
+    }
+
+    .search-form {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      height: 54px;
+      padding: 0 0.45rem 0 0.55rem;
+      border-radius: var(--radius-full);
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .search-form:hover {
+      border-color: rgba(255, 255, 255, 0.32);
+      background: var(--glass-bg-hover);
+    }
+
+    .search-form:focus-within {
+      border-color: var(--accent-cyan);
+      background: rgba(15, 22, 42, 0.52);
+      box-shadow: 0 14px 38px rgba(4, 6, 14, 0.65), 0 0 0 3px rgba(103, 232, 249, 0.22), 0 0 24px rgba(167, 139, 250, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .engine-selector-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .engine-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.42rem;
+      height: 40px;
+      padding: 0 0.75rem;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: var(--text-primary);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background var(--transition-fast), border-color var(--transition-fast);
+    }
+
+    .engine-trigger:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.26);
+    }
+
+    .engine-badge-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      box-shadow: 0 0 8px var(--accent-cyan);
+    }
+
+    .engine-dropdown {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 0;
+      min-width: 195px;
+      padding: 0.45rem;
+      border-radius: var(--radius-md);
+      background: var(--glass-modal-bg);
+      border: 1px solid var(--glass-border-strong);
+      box-shadow: var(--glass-shadow);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      display: none;
+      flex-direction: column;
+      gap: 0.2rem;
+      z-index: 50;
+    }
+
+    .engine-dropdown.open {
+      display: flex;
+      animation: fadeSlideDown 180ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .engine-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.55rem 0.75rem;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.84rem;
+      text-align: left;
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .engine-option:hover,
+    .engine-option.selected {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .engine-option.selected {
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    .search-input {
+      flex: 1;
+      height: 100%;
+      padding: 0 0.9rem;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.96rem;
+      user-select: text;
+    }
+
+    .search-input::placeholder {
+      color: rgba(183, 192, 211, 0.75);
+    }
+
+    .search-mode-hint {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.22rem 0.55rem;
+      border-radius: var(--radius-full);
+      background: rgba(167, 139, 250, 0.18);
+      border: 1px solid rgba(167, 139, 250, 0.35);
+      color: #DDD6FE;
+      margin-right: 0.35rem;
+      white-space: nowrap;
+      transition: all var(--transition-fast);
+    }
+
+    .search-mode-hint.is-url {
+      background: rgba(103, 232, 249, 0.18);
+      border-color: rgba(103, 232, 249, 0.42);
+      color: var(--accent-cyan);
+    }
+
+    .search-submit-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, rgba(167, 139, 250, 0.35), rgba(103, 232, 249, 0.28));
+      color: var(--text-primary);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+    }
+
+    .search-submit-btn:hover {
+      transform: scale(1.05);
+      background: linear-gradient(135deg, rgba(167, 139, 250, 0.55), rgba(103, 232, 249, 0.45));
+      box-shadow: 0 0 16px rgba(103, 232, 249, 0.35);
+    }
+
+    .shortcuts-area {
+      width: 100%;
+      max-width: 1060px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.95rem;
+    }
+
+    .category-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      padding: 0.35rem;
+      border-radius: var(--radius-full);
+      background: rgba(8, 11, 20, 0.36);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    }
+
+    .category-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.42rem;
+      padding: 0.42rem 0.9rem;
+      border-radius: var(--radius-full);
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 0.79rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .category-tab:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .category-tab.active {
+      color: var(--text-primary);
+      background: linear-gradient(135deg, rgba(167, 139, 250, 0.28), rgba(103, 232, 249, 0.2));
+      border-color: rgba(255, 255, 255, 0.28);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .category-count {
+      font-size: 0.68rem;
+      padding: 0.08rem 0.42rem;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--text-primary);
+    }
+
+    /* Shortcut Grid Viewport */
+    .shortcuts-viewport {
+      width: 100%;
+      position: relative;
+      padding: 0.35rem 0.25rem;
+    }
+
+    .shortcuts-grid {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: 1rem 0.85rem;
+      width: 100%;
+      justify-items: center;
+      animation: pageFadeIn 260ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes pageFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px) scale(0.99);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .shortcut-tile {
+      position: relative;
+      width: 100%;
+      max-width: 112px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 0.35rem 0.55rem;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      color: var(--text-primary);
+      transition: transform var(--transition-fast), background var(--transition-fast);
+      cursor: pointer;
+    }
+
+    .shortcut-tile:hover {
+      transform: translateY(-4px);
+    }
+
+    .shortcut-icon-box {
+      position: relative;
+      width: 58px;
+      height: 58px;
+      border-radius: 17px;
+      display: grid;
+      place-items: center;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 8px 22px -6px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+      transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+      overflow: hidden;
+    }
+
+    .shortcut-icon-box::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 25%, var(--brand-glow, rgba(167, 139, 250, 0.35)), transparent 72%);
+      opacity: 0.55;
+      transition: opacity var(--transition-fast);
+      pointer-events: none;
+    }
+
+    .shortcut-tile:hover .shortcut-icon-box {
+      border-color: var(--glass-border-strong);
+      background: var(--glass-bg-hover);
+      box-shadow: 0 12px 26px -4px rgba(0, 0, 0, 0.55), 0 0 18px var(--brand-glow, rgba(103, 232, 249, 0.32));
+    }
+
+    .shortcut-tile:hover .shortcut-icon-box::before {
+      opacity: 0.9;
+    }
+
+    .shortcut-icon-img {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+      z-index: 1;
+      filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.28));
+      transition: transform var(--transition-fast);
+    }
+
+    .shortcut-tile:hover .shortcut-icon-img,
+    .shortcut-tile:hover .shortcut-fallback-monogram {
+      transform: scale(1.08);
+    }
+
+    .shortcut-fallback-monogram {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: #FFFFFF;
+      background: var(--brand-solid, linear-gradient(135deg, #8B5CF6, #06B6D4));
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+      z-index: 1;
+      transition: transform var(--transition-fast);
+    }
+
+    .shortcut-label {
+      font-size: 0.76rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      text-align: center;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.75);
+      line-height: 1.2;
+    }
+
+    /* Add Shortcut Tile */
+    .shortcut-tile.add-shortcut-tile .shortcut-icon-box {
+      border-style: dashed;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .shortcut-tile.add-shortcut-tile:hover .shortcut-icon-box {
+      border-style: solid;
+      border-color: var(--accent-cyan);
+    }
+
+    /* Custom Shortcut Action Badges (Edit / Delete) */
+    .shortcut-actions {
+      position: absolute;
+      top: 2px;
+      right: 6px;
+      display: flex;
+      gap: 3px;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.9);
+      transition: opacity var(--transition-fast), transform var(--transition-fast);
+      z-index: 5;
+    }
+
+    .shortcut-tile.is-custom:hover .shortcut-actions,
+    body.manage-shortcuts-active .shortcut-tile.is-custom .shortcut-actions {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    .tile-action-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      background: rgba(8, 11, 20, 0.85);
+      color: var(--text-primary);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: background var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .tile-action-btn:hover {
+      background: var(--accent-violet);
+      transform: scale(1.1);
+    }
+
+    .tile-action-btn.delete:hover {
+      background: var(--danger);
+    }
+
+    /* Pagination Dots & Bottom Bar */
+    .pagination-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      margin-top: 0.2rem;
+    }
+
+    .page-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(255, 255, 255, 0.38);
+      background: rgba(255, 255, 255, 0.18);
+      cursor: pointer;
+      padding: 0;
+      transition: all var(--transition-fast);
+    }
+
+    .page-dot:hover {
+      background: rgba(255, 255, 255, 0.45);
+    }
+
+    .page-dot.active {
+      width: 26px;
+      background: linear-gradient(90deg, var(--accent-violet), var(--accent-cyan));
+      border-color: transparent;
+      box-shadow: 0 0 10px rgba(103, 232, 249, 0.45);
+    }
+
+    /* Footer */
+    .bottom-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      padding: 0.35rem 0.5rem 0;
+    }
+
+    .wallpaper-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-full);
+      background: rgba(8, 11, 20, 0.42);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .footer-Quick-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(4, 6, 14, 0.58);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+      animation: fadeIn 200ms ease-out;
+    }
+
+    .glass-modal {
+      width: 100%;
+      max-width: 580px;
+      max-height: 88vh;
+      overflow-y: auto;
+      border-radius: var(--radius-xl);
+      background: var(--glass-modal-bg);
+      border: 1px solid var(--glass-border-strong);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(32px) saturate(190%);
+      -webkit-backdrop-filter: blur(32px) saturate(190%);
+      padding: 1.4rem 1.5rem;
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      padding-bottom: 0.85rem;
+    }
+
+    .modal-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .modal-close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .modal-close-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .settings-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .settings-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .segmented-control {
+      display: flex;
+      gap: 0.35rem;
+      background: rgba(8, 11, 20, 0.5);
+      padding: 0.25rem;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .segment-btn {
+      padding: 0.38rem 0.78rem;
+      border-radius: var(--radius-full);
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .segment-btn.active {
+      background: linear-gradient(135deg, rgba(167, 139, 250, 0.4), rgba(103, 232, 249, 0.3));
+      color: var(--text-primary);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Wallpaper Thumbnail Grid */
+    .wallpaper-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.6rem;
+    }
+
+    .wallpaper-thumb {
+      position: relative;
+      aspect-ratio: 16 / 10;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.16);
+      cursor: pointer;
+      background: #121829;
+      transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .wallpaper-thumb:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.45);
+    }
+
+    .wallpaper-thumb.active {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 14px rgba(103, 232, 249, 0.45);
+    }
+
+    .wallpaper-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .wallpaper-thumb-label {
+      position: absolute;
+      inset: auto 0 0 0;
+      padding: 0.22rem 0.35rem;
+      font-size: 0.65rem;
+      background: linear-gradient(transparent, rgba(4, 6, 14, 0.88));
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Form Controls */
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.38rem;
+    }
+
+    .form-field label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .glass-input,
+    .glass-select {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--radius-sm);
+      background: rgba(8, 11, 20, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+    }
+
+    .glass-input:focus,
+    .glass-select:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 2px rgba(103, 232, 249, 0.2);
+    }
+
+    .form-error {
+      font-size: 0.76rem;
+      color: var(--danger);
+      min-height: 1.1rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.6rem;
+      margin-top: 0.25rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .btn-danger {
+      background: rgba(251, 113, 133, 0.18);
+      border-color: rgba(251, 113, 133, 0.4);
+      color: #FFE4E6;
+    }
+
+    /* Switch Toggle */
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      display: inline-block;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      cursor: pointer;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      transition: var(--transition-fast);
+    }
+
+    .toggle-slider::before {
+      content: "";
+      position: absolute;
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      border-radius: 50%;
+      background: #fff;
+      transition: var(--transition-fast);
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background: linear-gradient(135deg, var(--accent-violet), var(--accent-cyan));
+      border-color: transparent;
+    }
+
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+    }
+
+    /* Toast Notification */
+    .toast-notification {
+      position: fixed;
+      bottom: 1.4rem;
+      right: 1.4rem;
+      z-index: 200;
+      padding: 0.65rem 1.05rem;
+      border-radius: var(--radius-full);
+      background: rgba(13, 18, 34, 0.88);
+      border: 1px solid var(--accent-cyan);
+      color: var(--text-primary);
+      font-size: 0.82rem;
+      box-shadow: var(--glass-shadow);
+      backdrop-filter: blur(16px);
+      transform: translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 240ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .toast-notification.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Focus Visible Accessibility */
+    :focus-visible {
+      outline: 2px solid var(--accent-cyan);
+      outline-offset: 2px;
+    }
+
+    @keyframes fadeSlideDown {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Responsive Breakpoints */
+    @media (max-width: 1120px) {
+      .shortcuts-grid {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .brand-tagline {
+        display: none;
+      }
+      .btn-label-hide-sm {
+        display: none;
+      }
+      .shortcuts-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.85rem 0.5rem;
+      }
+      .wallpaper-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .bottom-bar {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body data-glass="balanced">
+  <div class="wallpaper-stage" aria-hidden="true">
+    <div id="wallpaper-layer-a" class="wallpaper-layer active"></div>
+    <div id="wallpaper-layer-b" class="wallpaper-layer"></div>
+    <div class="wallpaper-overlay"></div>
+  </div>
+
+  <!-- Main Application Shell -->
+  <div class="app-shell">
+    <header class="top-header glass-surface" role="banner">
+      <a href="#top" id="brand-home-link" class="brand-cluster" aria-label="Artemis Surf Home">
+        <div class="brand-logo" aria-hidden="true">
+          <!-- Artemis Crescent Moon & Star Vector Emblem -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="artemisMoonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#A78BFA" />
+                <stop offset="100%" stop-color="#67E8F9" />
+              </linearGradient>
+            </defs>
+            <path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" stroke="url(#artemisMoonGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="rgba(167,139,250,0.2)"/>
+            <path d="M16 4l.6 1.4L18 6l-1.4.6L16 8l-.6-1.4L14 6l1.4-.6L16 4z" fill="#67E8F9"/>
+          </svg>
+        </div>
+        <div class="brand-text-wrap">
+          <span class="brand-title">ARTEMIS SURF</span>
+          <span class="brand-tagline">Explore freely. Browse privately.</span>
+        </div>
+      </a>
+
+      <nav class="header-controls" aria-label="Start page controls">
+        <button type="button" id="btn-home" class="glass-btn" title="Return to default view" aria-label="Home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"/></svg>
+          <span class="btn-label-hide-sm">Home</span>
+        </button>
+
+        <button type="button" id="btn-next-wallpaper" class="glass-btn" title="Switch to next Artemis wallpaper" aria-label="Change wallpaper">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <span class="btn-label-hide-sm">Change Wallpaper</span>
+        </button>
+
+        <button type="button" id="btn-manage-shortcuts" class="glass-btn" title="Add or manage custom shortcuts" aria-label="Manage shortcuts">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><path d="M6.5 14v7M3 17.5h7"/></svg>
+          <span class="btn-label-hide-sm">Shortcuts</span>
+        </button>
+
+        <button type="button" id="btn-open-settings" class="glass-btn" title="Open settings and wallpaper gallery" aria-label="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span class="btn-label-hide-sm">Settings</span>
+        </button>
+      </nav>
+    </header>
+
+    <main class="main-stage" role="main">
+      <!-- Live Clock & Greeting -->
+      <section class="hero-clock-section" aria-label="Current time and date">
+        <div id="live-clock" class="clock-time" aria-live="off">12:00</div>
+        <div class="clock-date-row">
+          <span id="live-weekday">WEDNESDAY</span>
+          <span aria-hidden="true">•</span>
+          <span id="live-date">OCTOBER 21</span>
+        </div>
+        <p id="live-greeting" class="clock-greeting">Good afternoon. Discover something new.</p>
+      </section>
+
+      <!-- Privacy-First Search Bar -->
+      <section class="search-wrapper" aria-label="Web search">
+        <form id="search-form" class="search-form" role="search" novalidate>
+          <div class="engine-selector-wrap">
+            <button type="button" id="engine-trigger" class="engine-trigger" aria-haspopup="listbox" aria-expanded="false" title="Select search engine">
+              <span id="engine-dot" class="engine-badge-dot"></span>
+              <span id="engine-current-name">DuckDuckGo</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div id="engine-dropdown" class="engine-dropdown" role="listbox" aria-label="Search engines"></div>
+          </div>
+
+          <input
+            type="text"
+            id="search-input"
+            class="search-input"
+            placeholder="Search the web or enter an address..."
+            aria-label="Search the web or enter an address"
+            autocomplete="off"
+            spellcheck="false"
+            autofocus
+          />
+
+          <span id="search-mode-badge" class="search-mode-hint">Search</span>
+
+          <button type="submit" class="search-submit-btn" aria-label="Submit search or navigate">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          </button>
+        </form>
+      </section>
+
+      <!-- Categorized & Paginated Shortcuts Grid -->
+      <section class="shortcuts-area" aria-label="Website shortcuts">
+        <div id="category-tabs" class="category-bar" role="tablist" aria-label="Shortcut categories"></div>
+
+        <div id="shortcuts-viewport" class="shortcuts-viewport">
+          <div id="shortcuts-grid" class="shortcuts-grid" role="region" aria-live="polite"></div>
+        </div>
+
+        <div id="pagination-dots" class="pagination-bar" role="navigation" aria-label="Shortcut pages"></div>
+      </section>
+    </main>
+
+    <footer class="bottom-bar" role="contentinfo">
+      <div class="wallpaper-badge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#67E8F9" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg>
+        <span id="active-wallpaper-name">Moonlit Artemis Over the Ancient Sea</span>
+      </div>
+      <div class="footer-Quick-actions">
+        <button type="button" id="btn-add-shortcut-quick" class="glass-btn" aria-label="Add custom shortcut">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          <span>Add Shortcut</span>
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <div id="settings-modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+    <div class="glass-modal">
+      <div class="modal-header">
+        <h2 id="settings-modal-title" class="modal-title">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#67E8F9" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Artemis Surf Settings
+        </h2>
+        <button type="button" id="btn-close-settings" class="modal-close-btn" aria-label="Close settings">✕</button>
+      </div>
+
+      <!-- Search Engine Setting -->
+      <div class="settings-group">
+        <span class="settings-label">Search & Navigation</span>
+        <div class="settings-row">
+          <div>
+            <div style="font-size:0.88rem;font-weight:500;">Default Search Engine</div>
+            <div style="font-size:0.74rem;color:var(--text-secondary);">Used when entering search queries</div>
+          </div>
+          <select id="settings-engine-select" class="glass-select" style="width:auto;min-width:165px;" aria-label="Default search engine"></select>
+        </div>
+      </div>
+
+      <!-- Glass Transparency Level -->
+      <div class="settings-group">
+        <span class="settings-label">Glassmorphism Appearance</span>
+        <div class="settings-row">
+          <div>
+            <div style="font-size:0.88rem;font-weight:500;">Glass Intensity</div>
+            <div style="font-size:0.74rem;color:var(--text-secondary);">Adjust backdrop blur and frost opacity</div>
+          </div>
+          <div class="segmented-control" role="group" aria-label="Glass transparency level">
+            <button type="button" class="segment-btn" data-glass-mode="clear">Clear</button>
+            <button type="button" class="segment-btn active" data-glass-mode="balanced">Balanced</button>
+            <button type="button" class="segment-btn" data-glass-mode="frosted">Frosted</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wallpaper System -->
+      <div class="settings-group">
+        <span class="settings-label">Artemis Wallpaper Collection</span>
+        <div class="settings-row">
+          <div>
+            <div style="font-size:0.88rem;font-weight:500;">Automatic Wallpaper Rotation</div>
+            <div style="font-size:0.74rem;color:var(--text-secondary);">Rotate to a fresh wallpaper on new page loads</div>
+          </div>
+          <label class="toggle-switch" aria-label="Toggle automatic wallpaper rotation">
+            <input type="checkbox" id="toggle-wallpaper-rotation" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div id="wallpaper-thumbnails" class="wallpaper-grid" role="listbox" aria-label="Select wallpaper"></div>
+
+        <div class="settings-row" style="margin-top:0.25rem;">
+          <div>
+            <div style="font-size:0.85rem;font-weight:500;">Custom Device Wallpaper</div>
+            <div style="font-size:0.72rem;color:var(--text-secondary);">Stored locally in your browser — never uploaded</div>
+          </div>
+          <label class="glass-btn" style="cursor:pointer;">
+            <input type="file" id="input-custom-wallpaper" accept="image/*" style="display:none;" />
+            <span>Upload Image</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Shortcut & Settings Reset -->
+      <div class="settings-group">
+        <span class="settings-label">Shortcuts & Data</span>
+        <div class="settings-row">
+          <div>
+            <div style="font-size:0.85rem;font-weight:500;">Manage Custom Shortcuts</div>
+            <div style="font-size:0.72rem;color:var(--text-secondary);">Add new shortcut or reset custom additions</div>
+          </div>
+          <div style="display:flex;gap:0.45rem;">
+            <button type="button" id="btn-settings-add-shortcut" class="glass-btn">Add Shortcut</button>
+            <button type="button" id="btn-reset-shortcuts" class="glass-btn btn-danger">Reset Shortcuts</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions" style="border-top:1px solid rgba(255,255,255,0.12);padding-top:0.85rem;justify-content:space-between;">
+        <button type="button" id="btn-reset-all-settings" class="glass-btn btn-danger">Reset All Settings</button>
+        <button type="button" id="btn-done-settings" class="glass-btn btn-primary">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="shortcut-modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="shortcut-modal-title">
+    <div class="glass-modal" style="max-width:440px;">
+      <div class="modal-header">
+        <h2 id="shortcut-modal-title" class="modal-title">Add Custom Shortcut</h2>
+        <button type="button" id="btn-close-shortcut-modal" class="modal-close-btn" aria-label="Close shortcut dialog">✕</button>
+      </div>
+
+      <form id="shortcut-form" novalidate style="display:flex;flex-direction:column;gap:0.85rem;">
+        <input type="hidden" id="shortcut-edit-id" value="" />
+
+        <div class="form-field">
+          <label for="shortcut-name-input">Website Name</label>
+          <input type="text" id="shortcut-name-input" class="glass-input" placeholder="e.g. Proton Mail" maxlength="32" required />
+        </div>
+
+        <div class="form-field">
+          <label for="shortcut-url-input">Website URL (https:// or http://)</label>
+          <input type="text" id="shortcut-url-input" class="glass-input" placeholder="https://mail.proton.me" required />
+        </div>
+
+        <div class="form-field">
+          <label for="shortcut-category-input">Section</label>
+          <select id="shortcut-category-input" class="glass-select">
+            <option value="social">Social & Communities</option>
+            <option value="ai">AI Tools</option>
+            <option value="productivity">Workspace & Productivity</option>
+            <option value="dev">Search, Learning & Dev</option>
+          </select>
+        </div>
+
+        <div id="shortcut-form-error" class="form-error" role="alert"></div>
+
+        <div class="modal-actions">
+          <button type="button" id="btn-cancel-shortcut" class="glass-btn">Cancel</button>
+          <button type="submit" class="glass-btn btn-primary">Save Shortcut</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Status Message -->
+  <div id="toast-message" class="toast-notification" role="status" aria-live="polite"></div>
+
+  <!-- External Script for GitHub Pages deployment -->
+  <script src="script.js" defer></script>
+
+  <!-- Inline Self-Contained Application Script Fallback (runs only if external script.js is not served separately in single-file preview) -->
+  <script>
+    window.addEventListener('DOMContentLoaded', function () {
+      if (window.__ARTEMIS_SURF_INITIALIZED__) return;
+      window.__ARTEMIS_SURF_INITIALIZED__ = true;
+
+      const STORAGE_KEYS = {
+        SETTINGS: 'artemis_surf_settings_v1',
+        CUSTOM_SHORTCUTS: 'artemis_surf_custom_shortcuts_v1',
+        LAST_WALLPAPER: 'artemis_surf_last_wallpaper_v1',
+        INITIALIZED_ONCE: 'artemis_surf_visited_v1',
+        CUSTOM_WALLPAPER_DATA: 'artemis_surf_custom_wp_data_v1'
+      };
+
+      const WALLPAPERS = [
+        {
+          id: 'artemis-sea',
+          name: 'Moonlit Artemis Over the Ancient Sea',
+          url: 'https://github.com/bhuvanesh-m-dev/its-for-storage/blob/main/img/Moonlit%20Artemis%20Over%20the%20Ancient%20Sea.png?raw=true'
+        },
+        {
+          id: 'wp-1',
+          name: 'Artemis Sanctuary I',
+          url: 'https://github.com/bhuvanesh-m-dev/its-for-storage/blob/main/img/1.jpg?raw=true'
+        },
+        {
+          id: 'wp-2',
+          name: 'Lunar Horizon II',
+          url: 'https://github.com/bhuvanesh-m-dev/its-for-storage/blob/main/img/2.png?raw=true'
+        },
+        {
+          id: 'wp-3',
+          name: 'Celestial Bow III',
+          url: 'https://github.com/bhuvanesh-m-dev/its-for-storage/blob/main/img/3.png?raw=true'
+        },
+        {
+          id: 'wp-4-1',
+          name: 'Astral Forest IV.I',
+          url: 'https://github.com/bhuvanesh-m-dev/its-for-storage/blob/main/img/4.1.jpg?raw=true'
+        },
+        {
+          id: 'wp-4',
+          name: 'Night Huntress IV',
+          url: 'https://github.com/bhuvanesh-m-dev/its-for-storage/blob/main/img/4.png?raw=true'
+        },
+        {
+          id: 'wp-5-1',
+          name: 'Silver Tides V.I',
+          url: 'https://github.com/bhuvanesh-m-dev/its-for-storage/blob/main/img/5.1.png?raw=true'
+        },
+        {
+          id: 'wp-5',
+          name: 'Mythic Orbit V',
+          url: 'https://github.com/bhuvanesh-m-dev/its-for-storage/blob/main/img/5.jpg?raw=true'
+        }
+      ];
+
+      const SEARCH_ENGINES = {
+        duckduckgo: { name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=', color: '#DE5833' },
+        google: { name: 'Google', url: 'https://www.google.com/search?q=', color: '#4285F4' },
+        bing: { name: 'Bing', url: 'https://www.bing.com/search?q=', color: '#008373' },
+        ecosia: { name: 'Ecosia', url: 'https://www.ecosia.org/search?q=', color: '#36ACB8' },
+        brave: { name: 'Brave Search', url: 'https://search.brave.com/search?q=', color: '#FB542B' }
+      };
+
+      const CATEGORIES = [
+        { id: 'all', label: 'All Pages' },
+        { id: 'social', label: 'Social & Communities' },
+        { id: 'ai', label: 'AI Tools' },
+        { id: 'productivity', label: 'Workspace & Office' },
+        { id: 'dev', label: 'Search, Learn & Dev' }
+      ];
+
+      const DEFAULT_SHORTCUTS = [
+        // A. Social media and communities (12)
+        { id: 'soc-ig', name: 'Instagram', url: 'https://www.instagram.com/', category: 'social', slug: 'instagram', color: '#E4405F' },
+        { id: 'soc-yt', name: 'YouTube', url: 'https://www.youtube.com/', category: 'social', slug: 'youtube', color: '#FF0000' },
+        { id: 'soc-x', name: 'X', url: 'https://x.com/', category: 'social', slug: 'x', color: '#FFFFFF' },
+        { id: 'soc-fb', name: 'Facebook', url: 'https://www.facebook.com/', category: 'social', slug: 'facebook', color: '#1877F2' },
+        { id: 'soc-rd', name: 'Reddit', url: 'https://www.reddit.com/', category: 'social', slug: 'reddit', color: '#FF4500' },
+        { id: 'soc-pn', name: 'Pinterest', url: 'https://www.pinterest.com/', category: 'social', slug: 'pinterest', color: '#BD081C' },
+        { id: 'soc-in', name: 'LinkedIn', url: 'https://www.linkedin.com/', category: 'social', slug: 'linkedin', color: '#0A66C2' },
+        { id: 'soc-dc', name: 'Discord', url: 'https://discord.com/app', category: 'social', slug: 'discord', color: '#5865F2' },
+        { id: 'soc-wa', name: 'WhatsApp Web', url: 'https://web.whatsapp.com/', category: 'social', slug: 'whatsapp', color: '#25D366' },
+        { id: 'soc-tg', name: 'Telegram', url: 'https://web.telegram.org/', category: 'social', slug: 'telegram', color: '#26A5E4' },
+        { id: 'soc-th', name: 'Threads', url: 'https://www.threads.net/', category: 'social', slug: 'threads', color: '#FFFFFF' },
+        { id: 'soc-tt', name: 'TikTok', url: 'https://www.tiktok.com/', category: 'social', slug: 'tiktok', color: '#00F2FE' },
+
+        // B. AI tools (15)
+        { id: 'ai-gpt', name: 'ChatGPT', url: 'https://chatgpt.com/', category: 'ai', slug: 'openai', color: '#10A37F' },
+        { id: 'ai-gem', name: 'Google Gemini', url: 'https://gemini.google.com/', category: 'ai', slug: 'googlegemini', color: '#8E75B2' },
+        { id: 'ai-cld', name: 'Claude', url: 'https://claude.ai/', category: 'ai', slug: 'anthropic', color: '#D97757' },
+        { id: 'ai-grk', name: 'Grok', url: 'https://grok.com/', category: 'ai', slug: 'x', color: '#F7F8FC' },
+        { id: 'ai-ppx', name: 'Perplexity', url: 'https://www.perplexity.ai/', category: 'ai', slug: 'perplexity', color: '#22B8CF' },
+        { id: 'ai-cop', name: 'Microsoft Copilot', url: 'https://copilot.microsoft.com/', category: 'ai', slug: 'githubcopilot', color: '#38BDF8' },
+        { id: 'ai-ds', name: 'DeepSeek', url: 'https://chat.deepseek.com/', category: 'ai', slug: '', color: '#4D6BFE' },
+        { id: 'ai-mst', name: 'Mistral AI', url: 'https://chat.mistral.ai/', category: 'ai', slug: 'mistralai', color: '#FA520F' },
+        { id: 'ai-mta', name: 'Meta AI', url: 'https://www.meta.ai/', category: 'ai', slug: 'meta', color: '#0081FB' },
+        { id: 'ai-poe', name: 'Poe', url: 'https://poe.com/', category: 'ai', slug: 'quora', color: '#8B5CF6' },
+        { id: 'ai-hf', name: 'Hugging Face', url: 'https://huggingface.co/', category: 'ai', slug: 'huggingface', color: '#FFD21E' },
+        { id: 'ai-nlm', name: 'NotebookLM', url: 'https://notebooklm.google.com/', category: 'ai', slug: 'google', color: '#34D399' },
+        { id: 'ai-ais', name: 'Google AI Studio', url: 'https://aistudio.google.com/', category: 'ai', slug: 'googlecloud', color: '#60A5FA' },
+        { id: 'ai-cai', name: 'Character.AI', url: 'https://character.ai/', category: 'ai', slug: '', color: '#A78BFA' },
+        { id: 'ai-phd', name: 'Phind', url: 'https://www.phind.com/', category: 'ai', slug: '', color: '#67E8F9' },
+
+        // C. Google Workspace and office productivity (17)
+        { id: 'prd-gm', name: 'Gmail', url: 'https://mail.google.com/', category: 'productivity', slug: 'gmail', color: '#EA4335' },
+        { id: 'prd-gd', name: 'Google Drive', url: 'https://drive.google.com/', category: 'productivity', slug: 'googledrive', color: '#4285F4' },
+        { id: 'prd-gdc', name: 'Google Docs', url: 'https://docs.google.com/', category: 'productivity', slug: 'googledocs', color: '#4285F4' },
+        { id: 'prd-gsh', name: 'Google Sheets', url: 'https://sheets.google.com/', category: 'productivity', slug: 'googlesheets', color: '#34A853' },
+        { id: 'prd-gsl', name: 'Google Slides', url: 'https://slides.google.com/', category: 'productivity', slug: 'googleslides', color: '#FBBC04' },
+        { id: 'prd-gcl', name: 'Google Calendar', url: 'https://calendar.google.com/', category: 'productivity', slug: 'googlecalendar', color: '#4285F4' },
+        { id: 'prd-gmt', name: 'Google Meet', url: 'https://meet.google.com/', category: 'productivity', slug: 'googlemeet', color: '#00897B' },
+        { id: 'prd-gkp', name: 'Google Keep', url: 'https://keep.google.com/', category: 'productivity', slug: 'googlekeep', color: '#FBBC04' },
+        { id: 'prd-m365', name: 'Microsoft 365', url: 'https://www.microsoft365.com/', category: 'productivity', slug: '', color: '#EA3E23' },
+        { id: 'prd-out', name: 'Outlook', url: 'https://outlook.live.com/', category: 'productivity', slug: '', color: '#0078D4' },
+        { id: 'prd-od', name: 'OneDrive', url: 'https://onedrive.live.com/', category: 'productivity', slug: '', color: '#0078D4' },
+        { id: 'prd-ntn', name: 'Notion', url: 'https://www.notion.so/', category: 'productivity', slug: 'notion', color: '#FFFFFF' },
+        { id: 'prd-slk', name: 'Slack', url: 'https://slack.com/', category: 'productivity', slug: 'slack', color: '#4A154B' },
+        { id: 'prd-trl', name: 'Trello', url: 'https://trello.com/', category: 'productivity', slug: 'trello', color: '#0052CC' },
+        { id: 'prd-zm', name: 'Zoom', url: 'https://zoom.us/', category: 'productivity', slug: 'zoom', color: '#0B5CFF' },
+        { id: 'prd-cnv', name: 'Canva', url: 'https://www.canva.com/', category: 'productivity', slug: 'canva', color: '#00C4CC' },
+        { id: 'prd-dbx', name: 'Dropbox', url: 'https://www.dropbox.com/', category: 'productivity', slug: 'dropbox', color: '#0061FF' },
+
+        // D. Search, learning, and developer tools (12)
+        { id: 'dev-ggl', name: 'Google', url: 'https://www.google.com/', category: 'dev', slug: 'google', color: '#4285F4' },
+        { id: 'dev-ddg', name: 'DuckDuckGo', url: 'https://duckduckgo.com/', category: 'dev', slug: 'duckduckgo', color: '#DE5833' },
+        { id: 'dev-wk', name: 'Wikipedia', url: 'https://www.wikipedia.org/', category: 'dev', slug: 'wikipedia', color: '#FFFFFF' },
+        { id: 'dev-gh', name: 'GitHub', url: 'https://github.com/', category: 'dev', slug: 'github', color: '#FFFFFF' },
+        { id: 'dev-gl', name: 'GitLab', url: 'https://gitlab.com/', category: 'dev', slug: 'gitlab', color: '#FC6D26' },
+        { id: 'dev-so', name: 'Stack Overflow', url: 'https://stackoverflow.com/', category: 'dev', slug: 'stackoverflow', color: '#F58025' },
+        { id: 'dev-dev', name: 'Dev.to', url: 'https://dev.to/', category: 'dev', slug: 'devdotto', color: '#FFFFFF' },
+        { id: 'dev-hn', name: 'Hacker News', url: 'https://news.ycombinator.com/', category: 'dev', slug: 'ycombinator', color: '#FF6600' },
+        { id: 'dev-fgm', name: 'Figma', url: 'https://www.figma.com/', category: 'dev', slug: 'figma', color: '#F24E1E' },
+        { id: 'dev-cp', name: 'CodePen', url: 'https://codepen.io/', category: 'dev', slug: 'codepen', color: '#FFFFFF' },
+        { id: 'dev-vcl', name: 'Vercel', url: 'https://vercel.com/', category: 'dev', slug: 'vercel', color: '#FFFFFF' },
+        { id: 'dev-ntl', name: 'Netlify', url: 'https://app.netlify.com/', category: 'dev', slug: 'netlify', color: '#00C7B7' }
+      ];
+
+      const ITEMS_PER_PAGE = 16;
+
+      let state = {
+        settings: {
+          searchEngine: 'duckduckgo',
+          rotateWallpaper: true,
+          selectedWallpaperIndex: 0,
+          useCustomWallpaper: false,
+          glassMode: 'balanced'
+        },
+        customShortcuts: [],
+        activeCategory: 'all',
+        currentPage: 0,
+        activeLayer: 'a',
+        manageMode: false
+      };
+
+      /* Safe LocalStorage Helpers */
+      function safeGetStorage(key, fallback) {
+        try {
+          const raw = window.localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : fallback;
+        } catch (err) {
+          return fallback;
+        }
+      }
+
+      function safeSetStorage(key, value) {
+        try {
+          window.localStorage.setItem(key, JSON.stringify(value));
+          return true;
+        } catch (err) {
+          return false;
+        }
+      }
+
+      function showToast(msg) {
+        const el = document.getElementById('toast-message');
+        if (!el) return;
+        el.textContent = msg;
+        el.classList.add('show');
+        clearTimeout(showToast._timer);
+        showToast._timer = setTimeout(() => el.classList.remove('show'), 2600);
+      }
+
+      /* Load Persisted State */
+      function loadState() {
+        const savedSettings = safeGetStorage(STORAGE_KEYS.SETTINGS, null);
+        if (savedSettings && typeof savedSettings === 'object') {
+          state.settings = Object.assign({}, state.settings, savedSettings);
+        }
+        const savedCustom = safeGetStorage(STORAGE_KEYS.CUSTOM_SHORTCUTS, []);
+        if (Array.isArray(savedCustom)) {
+          state.customShortcuts = savedCustom.filter(item => item && item.name && item.url);
+        }
+
+        const visitedBefore = safeGetStorage(STORAGE_KEYS.INITIALIZED_ONCE, false);
+        const lastIndex = safeGetStorage(STORAGE_KEYS.LAST_WALLPAPER, 0);
+
+        if (!visitedBefore) {
+          state.settings.selectedWallpaperIndex = 0; // Moonlit Artemis Over the Ancient Sea on first load
+          safeSetStorage(STORAGE_KEYS.INITIALIZED_ONCE, true);
+          safeSetStorage(STORAGE_KEYS.LAST_WALLPAPER, 0);
+        } else if (state.settings.rotateWallpaper && !state.settings.useCustomWallpaper) {
+          const candidates = WALLPAPERS.map((_, i) => i).filter(i => i !== lastIndex);
+          const nextIdx = candidates[Math.floor(Math.random() * candidates.length)] || 0;
+          state.settings.selectedWallpaperIndex = nextIdx;
+          safeSetStorage(STORAGE_KEYS.LAST_WALLPAPER, nextIdx);
+        }
+      }
+
+      function applyWallpaper(url, labelText) {
+        const layerA = document.getElementById('wallpaper-layer-a');
+        const layerB = document.getElementById('wallpaper-layer-b');
+        const badge = document.getElementById('active-wallpaper-name');
+
+        const loader = new Image();
+        loader.onload = function () {
+          const targetLayer = state.activeLayer === 'a' ? layerB : layerA;
+          const previousLayer = state.activeLayer === 'a' ? layerA : layerB;
+          targetLayer.style.backgroundImage = 'url("' + url.replace(/"/g, '\\"') + '")';
+          targetLayer.classList.add('active');
+          previousLayer.classList.remove('active');
+          state.activeLayer = state.activeLayer === 'a' ? 'b' : 'a';
+          if (badge) badge.textContent = labelText || 'Artemis Wallpaper';
+        };
+        loader.onerror = function () {
+          // Graceful fallback to another supplied wallpaper if network or image fails
+          const fallbackIdx = (state.settings.selectedWallpaperIndex + 1) % WALLPAPERS.length;
+          const fallbackWp = WALLPAPERS[fallbackIdx];
+          if (fallbackWp && fallbackWp.url !== url) {
+            const targetLayer = state.activeLayer === 'a' ? layerB : layerA;
+            targetLayer.style.backgroundImage = 'url("' + fallbackWp.url + '")';
+            targetLayer.classList.add('active');
+          }
+          if (badge) badge.textContent = labelText + ' (Fallback)';
+        };
+        loader.src = url;
+
+        // Preload the next wallpaper in collection
+        const nextPreloadIdx = (state.settings.selectedWallpaperIndex + 1) % WALLPAPERS.length;
+        const preloadImg = new Image();
+        preloadImg.src = WALLPAPERS[nextPreloadIdx].url;
+      }
+
+      function refreshActiveWallpaper() {
+        if (state.settings.useCustomWallpaper) {
+          const customData = safeGetStorage(STORAGE_KEYS.CUSTOM_WALLPAPER_DATA, null);
+          if (customData) {
+            applyWallpaper(customData, 'Custom Uploaded Wallpaper');
+            return;
+          }
+          state.settings.useCustomWallpaper = false;
+        }
+        const idx = Math.max(0, Math.min(WALLPAPERS.length - 1, state.settings.selectedWallpaperIndex || 0));
+        const wp = WALLPAPERS[idx];
+        applyWallpaper(wp.url, wp.name);
+        safeSetStorage(STORAGE_KEYS.LAST_WALLPAPER, idx);
+        renderWallpaperThumbnails();
+      }
+
+      function cycleNextWallpaper() {
+        state.settings.useCustomWallpaper = false;
+        state.settings.selectedWallpaperIndex = (state.settings.selectedWallpaperIndex + 1) % WALLPAPERS.length;
+        safeSetStorage(STORAGE_KEYS.SETTINGS, state.settings);
+        refreshActiveWallpaper();
+      }
+
+      /* Live Clock & Greeting */
+      function updateClock() {
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const displayHours = String(hours).padStart(2, '0');
+
+        const clockEl = document.getElementById('live-clock');
+        const weekdayEl = document.getElementById('live-weekday');
+        const dateEl = document.getElementById('live-date');
+        const greetingEl = document.getElementById('live-greeting');
+
+        if (clockEl) clockEl.textContent = displayHours + ':' + minutes;
+        if (weekdayEl) {
+          weekdayEl.textContent = now.toLocaleDateString(undefined, { weekday: 'long' }).toUpperCase();
+        }
+        if (dateEl) {
+          dateEl.textContent = now.toLocaleDateString(undefined, { month: 'long', day: 'numeric' }).toUpperCase();
+        }
+        if (greetingEl) {
+          if (hours < 12) {
+            greetingEl.textContent = 'Good morning. The world is yours to explore.';
+          } else if (hours < 18) {
+            greetingEl.textContent = 'Good afternoon. Discover something new.';
+          } else {
+            greetingEl.textContent = 'Good evening. Your next idea starts here.';
+          }
+        }
+      }
+
+      function isDirectWebsiteAddress(input) {
+        const trimmed = input.trim();
+        if (!trimmed || /\s/.test(trimmed)) return false;
+
+        if (/^https?:\/\//i.test(trimmed)) {
+          try {
+            const parsed = new URL(trimmed);
+            return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+          } catch (e) {
+            return false;
+          }
+        }
+
+        // Domain pattern like example.com, sub.domain.co.uk/path, localhost:3000
+        const domainPattern = /^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/.*)?$/;
+        const localhostPattern = /^localhost(:\d+)?(\/.*)?$/i;
+        return domainPattern.test(trimmed) || localhostPattern.test(trimmed);
+      }
+
+      function normalizeDestinationUrl(input) {
+        const trimmed = input.trim();
+        if (/^https?:\/\//i.test(trimmed)) return trimmed;
+        if (/^localhost(:\d+)?/i.test(trimmed)) return 'http://' + trimmed;
+        return 'https://' + trimmed;
+      }
+
+      function handleSearchSubmit(e) {
+        e.preventDefault();
+        const inputEl = document.getElementById('search-input');
+        if (!inputEl) return;
+        const raw = inputEl.value.trim();
+        if (!raw) {
+          inputEl.focus();
+          return;
+        }
+
+        let targetUrl = '';
+        if (isDirectWebsiteAddress(raw)) {
+          targetUrl = normalizeDestinationUrl(raw);
+        } else {
+          const engineKey = state.settings.searchEngine in SEARCH_ENGINES ? state.settings.searchEngine : 'duckduckgo';
+          targetUrl = SEARCH_ENGINES[engineKey].url + encodeURIComponent(raw);
+        }
+
+        window.open(targetUrl, '_blank', 'noopener,noreferrer');
+      }
+
+      /* Render Search Engine Selector */
+      function renderSearchEngines() {
+        const currentKey = state.settings.searchEngine in SEARCH_ENGINES ? state.settings.searchEngine : 'duckduckgo';
+        const currentEngine = SEARCH_ENGINES[currentKey];
+
+        const nameEl = document.getElementById('engine-current-name');
+        const dotEl = document.getElementById('engine-dot');
+        const dropdownEl = document.getElementById('engine-dropdown');
+        const settingsSelect = document.getElementById('settings-engine-select');
+
+        if (nameEl) nameEl.textContent = currentEngine.name;
+        if (dotEl) {
+          dotEl.style.background = currentEngine.color;
+          dotEl.style.boxShadow = '0 0 8px ' + currentEngine.color;
+        }
+
+        if (dropdownEl) {
+          dropdownEl.textContent = '';
+          Object.keys(SEARCH_ENGINES).forEach(key => {
+            const eng = SEARCH_ENGINES[key];
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'engine-option' + (key === currentKey ? ' selected' : '');
+            btn.setAttribute('role', 'option');
+            btn.setAttribute('aria-selected', key === currentKey ? 'true' : 'false');
+
+            const labelSpan = document.createElement('span');
+            labelSpan.textContent = eng.name;
+
+            const indicator = document.createElement('span');
+            indicator.className = 'engine-badge-dot';
+            indicator.style.background = eng.color;
+
+            btn.appendChild(labelSpan);
+            btn.appendChild(indicator);
+            btn.addEventListener('click', () => {
+              state.settings.searchEngine = key;
+              safeSetStorage(STORAGE_KEYS.SETTINGS, state.settings);
+              dropdownEl.classList.remove('open');
+              document.getElementById('engine-trigger').setAttribute('aria-expanded', 'false');
+              renderSearchEngines();
+              showToast('Default search set to ' + eng.name);
+            });
+            dropdownEl.appendChild(btn);
+          });
+        }
+
+        if (settingsSelect) {
+          settingsSelect.textContent = '';
+          Object.keys(SEARCH_ENGINES).forEach(key => {
+            const opt = document.createElement('option');
+            opt.value = key;
+            opt.textContent = SEARCH_ENGINES[key].name;
+            if (key === currentKey) opt.selected = true;
+            settingsSelect.appendChild(opt);
+          });
+        }
+      }
+
+      function getAllShortcuts() {
+        return DEFAULT_SHORTCUTS.concat(state.customShortcuts);
+      }
+
+      function getFilteredShortcuts() {
+        const all = getAllShortcuts();
+        if (state.activeCategory === 'all') return all;
+        return all.filter(item => item.category === state.activeCategory);
+      }
+
+      function createMonogramBadge(name, color) {
+        const badge = document.createElement('div');
+        badge.className = 'shortcut-fallback-monogram';
+        const clean = (name || '?').trim();
+        const parts = clean.split(/\s+/);
+        const initials = parts.length > 1
+          ? (parts[0][0] + parts[1][0]).toUpperCase()
+          : clean.slice(0, 2).toUpperCase();
+        badge.textContent = initials;
+        if (color) {
+          badge.style.setProperty('--brand-solid', color);
+        }
+        return badge;
+      }
+
+      function renderCategoryTabs() {
+        const bar = document.getElementById('category-tabs');
+        if (!bar) return;
+        bar.textContent = '';
+
+        const allItems = getAllShortcuts();
+
+        CATEGORIES.forEach(cat => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'category-tab' + (state.activeCategory === cat.id ? ' active' : '');
+          btn.setAttribute('role', 'tab');
+          btn.setAttribute('aria-selected', state.activeCategory === cat.id ? 'true' : 'false');
+
+          const nameSpan = document.createElement('span');
+          nameSpan.textContent = cat.label;
+
+          const countSpan = document.createElement('span');
+          countSpan.className = 'category-count';
+          const count = cat.id === 'all'
+            ? allItems.length
+            : allItems.filter(s => s.category === cat.id).length;
+          countSpan.textContent = String(count);
+
+          btn.appendChild(nameSpan);
+          btn.appendChild(countSpan);
+
+          btn.addEventListener('click', () => {
+            state.activeCategory = cat.id;
+            state.currentPage = 0;
+            renderCategoryTabs();
+            renderShortcutsAndPagination();
+          });
+
+          bar.appendChild(btn);
+        });
+      }
+
+      function renderShortcutsAndPagination() {
+        const grid = document.getElementById('shortcuts-grid');
+        const dotsWrap = document.getElementById('pagination-dots');
+        if (!grid || !dotsWrap) return;
+
+        const filtered = getFilteredShortcuts();
+        // Reserve 1 slot on the last page for the "+ Add Shortcut" tile
+        const totalWithAdd = filtered.length + 1;
+        const totalPages = Math.max(1, Math.ceil(totalWithAdd / ITEMS_PER_PAGE));
+        if (state.currentPage >= totalPages) state.currentPage = totalPages - 1;
+
+        const startIdx = state.currentPage * ITEMS_PER_PAGE;
+        const pageSlice = filtered.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+
+        grid.textContent = '';
+
+        pageSlice.forEach(item => {
+          const tile = document.createElement('a');
+          tile.className = 'shortcut-tile' + (item.isCustom ? ' is-custom' : '');
+          tile.href = item.url;
+          tile.target = '_blank';
+          tile.rel = 'noopener noreferrer';
+          tile.title = item.name + ' (' + item.url + ')';
+
+          const iconBox = document.createElement('div');
+          iconBox.className = 'shortcut-icon-box';
+          const brandColor = item.color || '#A78BFA';
+          iconBox.style.setProperty('--brand-glow', brandColor + '55');
+
+          const fallbackBadge = createMonogramBadge(item.name, brandColor);
+
+          if (item.slug) {
+            const img = document.createElement('img');
+            img.className = 'shortcut-icon-img';
+            img.alt = item.name + ' logo';
+            img.loading = 'lazy';
+            const hex = brandColor.replace('#', '');
+            img.src = 'https://cdn.simpleicons.org/' + encodeURIComponent(item.slug) + '/' + hex;
+            img.onerror = function () {
+              if (img.parentNode) {
+                img.parentNode.replaceChild(fallbackBadge, img);
+              }
+            };
+            iconBox.appendChild(img);
+          } else {
+            iconBox.appendChild(fallbackBadge);
+          }
+
+          const label = document.createElement('span');
+          label.className = 'shortcut-label';
+          label.textContent = item.name;
+
+          tile.appendChild(iconBox);
+          tile.appendChild(label);
+
+          if (item.isCustom) {
+            const actions = document.createElement('div');
+            actions.className = 'shortcut-actions';
+
+            const editBtn = document.createElement('button');
+            editBtn.type = 'button';
+            editBtn.className = 'tile-action-btn';
+            editBtn.title = 'Edit shortcut';
+            editBtn.setAttribute('aria-label', 'Edit ' + item.name);
+            editBtn.textContent = '✎';
+            editBtn.addEventListener('click', function (ev) {
+              ev.preventDefault();
+              ev.stopPropagation();
+              openShortcutModal(item);
+            });
+
+            const delBtn = document.createElement('button');
+            delBtn.type = 'button';
+            delBtn.className = 'tile-action-btn delete';
+            delBtn.title = 'Remove shortcut';
+            delBtn.setAttribute('aria-label', 'Remove ' + item.name);
+            delBtn.textContent = '✕';
+            delBtn.addEventListener('click', function (ev) {
+              ev.preventDefault();
+              ev.stopPropagation();
+              deleteCustomShortcut(item.id);
+            });
+
+            actions.appendChild(editBtn);
+            actions.appendChild(delBtn);
+            tile.appendChild(actions);
+          }
+
+          grid.appendChild(tile);
+        });
+
+        // Append "+ Add Shortcut" tile if space permits on this page
+        if (pageSlice.length < ITEMS_PER_PAGE) {
+          const addTile = document.createElement('button');
+          addTile.type = 'button';
+          addTile.className = 'shortcut-tile add-shortcut-tile';
+          addTile.style.background = 'transparent';
+          addTile.style.border = 'none';
+          addTile.setAttribute('aria-label', 'Add custom shortcut');
+
+          const box = document.createElement('div');
+          box.className = 'shortcut-icon-box';
+          box.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#67E8F9" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+
+          const lbl = document.createElement('span');
+          lbl.className = 'shortcut-label';
+          lbl.textContent = 'Add Shortcut';
+
+          addTile.appendChild(box);
+          addTile.appendChild(lbl);
+          addTile.addEventListener('click', () => openShortcutModal(null));
+          grid.appendChild(addTile);
+        }
+
+        // Render pagination dots
+        dotsWrap.textContent = '';
+        if (totalPages > 1) {
+          for (let i = 0; i < totalPages; i++) {
+            const dot = document.createElement('button');
+            dot.type = 'button';
+            dot.className = 'page-dot' + (i === state.currentPage ? ' active' : '');
+            dot.setAttribute('aria-label', 'Page ' + (i + 1));
+            dot.addEventListener('click', () => {
+              state.currentPage = i;
+              renderShortcutsAndPagination();
+            });
+            dotsWrap.appendChild(dot);
+          }
+        }
+      }
+
+      /* Custom Shortcut CRUD */
+      function openShortcutModal(existingItem) {
+        const backdrop = document.getElementById('shortcut-modal-backdrop');
+        const titleEl = document.getElementById('shortcut-modal-title');
+        const idInput = document.getElementById('shortcut-edit-id');
+        const nameInput = document.getElementById('shortcut-name-input');
+        const urlInput = document.getElementById('shortcut-url-input');
+        const catInput = document.getElementById('shortcut-category-input');
+        const errEl = document.getElementById('shortcut-form-error');
+
+        if (!backdrop) return;
+        errEl.textContent = '';
+
+        if (existingItem) {
+          titleEl.textContent = 'Edit Custom Shortcut';
+          idInput.value = existingItem.id;
+          nameInput.value = existingItem.name;
+          urlInput.value = existingItem.url;
+          catInput.value = existingItem.category || 'social';
+        } else {
+          titleEl.textContent = 'Add Custom Shortcut';
+          idInput.value = '';
+          nameInput.value = '';
+          urlInput.value = '';
+          catInput.value = state.activeCategory !== 'all' ? state.activeCategory : 'social';
+        }
+
+        backdrop.classList.add('open');
+        nameInput.focus();
+      }
+
+      function closeShortcutModal() {
+        const backdrop = document.getElementById('shortcut-modal-backdrop');
+        if (backdrop) backdrop.classList.remove('open');
+      }
+
+      function validateSafeHttpUrl(rawUrl) {
+        let candidate = rawUrl.trim();
+        if (! candidate) return null;
+        if (!/^https?:\/\//i.test(candidate)) {
+          candidate = 'https://' + candidate;
+        }
+        try {
+          const parsed = new URL(candidate);
+          if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
+          if (!parsed.hostname || !parsed.hostname.includes('.')) return null;
+          return parsed.href;
+        } catch (err) {
+          return null;
+        }
+      }
+
+      function handleShortcutSave(e) {
+        e.preventDefault();
+        const idVal = document.getElementById('shortcut-edit-id').value.trim();
+        const nameVal = document.getElementById('shortcut-name-input').value.trim();
+        const urlVal = document.getElementById('shortcut-url-input').value.trim();
+        const catVal = document.getElementById('shortcut-category-input').value;
+        const errEl = document.getElementById('shortcut-form-error');
+
+        if (!nameVal) {
+          errEl.textContent = 'Please enter a shortcut name.';
+          return;
+        }
+
+        const safeUrl = validateSafeHttpUrl(urlVal);
+        if (!safeUrl) {
+          errEl.textContent = 'Please enter a valid http:// or https:// website URL.';
+          return;
+        }
+
+        if (idVal) {
+          state.customShortcuts = state.customShortcuts.map(item => {
+            if (item.id === idVal) {
+              return Object.assign({}, item, { name: nameVal, url: safeUrl, category: catVal });
+            }
+            return item;
+          });
+          showToast('Updated "' + nameVal + '"');
+        } else {
+          const newShortcut = {
+            id: 'custom-' + Date.now(),
+            name: nameVal,
+            url: safeUrl,
+            category: catVal,
+            slug: '',
+            color: '#67E8F9',
+            isCustom: true
+          };
+          state.customShortcuts.push(newShortcut);
+          showToast('Added "' + nameVal + '"');
+        }
+
+        safeSetStorage(STORAGE_KEYS.CUSTOM_SHORTCUTS, state.customShortcuts);
+        closeShortcutModal();
+        renderCategoryTabs();
+        renderShortcutsAndPagination();
+      }
+
+      function deleteCustomShortcut(id) {
+        state.customShortcuts = state.customShortcuts.filter(item => item.id !== id);
+        safeSetStorage(STORAGE_KEYS.CUSTOM_SHORTCUTS, state.customShortcuts);
+        renderCategoryTabs();
+        renderShortcutsAndPagination();
+        showToast('Custom shortcut removed');
+      }
+
+      /* Wallpaper Thumbnails & Glass Mode in Settings */
+      function renderWallpaperThumbnails() {
+        const container = document.getElementById('wallpaper-thumbnails');
+        if (!container) return;
+        container.textContent = '';
+
+        WALLPAPERS.forEach((wp, index) => {
+          const card = document.createElement('button');
+          card.type = 'button';
+          const isSelected = !state.settings.useCustomWallpaper && state.settings.selectedWallpaperIndex === index;
+          card.className = 'wallpaper-thumb' + (isSelected ? ' active' : '');
+          card.setAttribute('aria-label', 'Select wallpaper ' + wp.name);
+
+          const img = document.createElement('img');
+          img.src = wp.url;
+          img.alt = wp.name;
+          img.loading = 'lazy';
+
+          const lbl = document.createElement('span');
+          lbl.className = 'wallpaper-thumb-label';
+          lbl.textContent = wp.name;
+
+          card.appendChild(img);
+          card.appendChild(lbl);
+
+          card.addEventListener('click', () => {
+            state.settings.useCustomWallpaper = false;
+            state.settings.selectedWallpaperIndex = index;
+            safeSetStorage(STORAGE_KEYS.SETTINGS, state.settings);
+            refreshActiveWallpaper();
+          });
+
+          container.appendChild(card);
+        });
+      }
+
+      function applyGlassMode(mode) {
+        const valid = ['clear', 'balanced', 'frosted'].includes(mode) ? mode : 'balanced';
+        state.settings.glassMode = valid;
+        document.body.setAttribute('data-glass', valid);
+        document.querySelectorAll('[data-glass-mode]').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-glass-mode') === valid);
+        });
+      }
+
+      /* Event Wiring */
+      function bindEvents() {
+        document.getElementById('search-form').addEventListener('submit', handleSearchSubmit);
+
+        const searchInput = document.getElementById('search-input');
+        const modeBadge = document.getElementById('search-mode-badge');
+        searchInput.addEventListener('input', () => {
+          const val = searchInput.value.trim();
+          const direct = isDirectWebsiteAddress(val);
+          modeBadge.textContent = direct ? 'Open Site' : 'Search';
+          modeBadge.classList.toggle('is-url', direct);
+        });
+
+        // Engine dropdown toggle
+        const engineTrigger = document.getElementById('engine-trigger');
+        const engineDropdown = document.getElementById('engine-dropdown');
+        engineTrigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const isOpen = engineDropdown.classList.toggle('open');
+          engineTrigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+
+        document.addEventListener('click', () => {
+          engineDropdown.classList.remove('open');
+          engineTrigger.setAttribute('aria-expanded', 'false');
+        });
+
+        // Header buttons
+        document.getElementById('btn-home').addEventListener('click', () => {
+          state.activeCategory = 'all';
+          state.currentPage = 0;
+          renderCategoryTabs();
+          renderShortcutsAndPagination();
+          searchInput.focus();
+        });
+
+        document.getElementById('btn-next-wallpaper').addEventListener('click', cycleNextWallpaper);
+
+        const manageBtn = document.getElementById('btn-manage-shortcuts');
+        manageBtn.addEventListener('click', () => {
+          openShortcutModal(null);
+        });
+
+        document.getElementById('btn-add-shortcut-quick').addEventListener('click', () => openShortcutModal(null));
+
+        // Settings modal
+        const settingsBackdrop = document.getElementById('settings-modal-backdrop');
+        document.getElementById('btn-open-settings').addEventListener('click', () => {
+          renderWallpaperThumbnails();
+          settingsBackdrop.classList.add('open');
+        });
+
+        const closeSettings = () => settingsBackdrop.classList.remove('open');
+        document.getElementById('btn-close-settings').addEventListener('click', closeSettings);
+        document.getElementById('btn-done-settings').addEventListener('click', closeSettings);
+        settingsBackdrop.addEventListener('click', (e) => {
+          if (e.target === settingsBackdrop) closeSettings();
+        });
+
+        document.getElementById('settings-engine-select').addEventListener('change', (e) => {
+          state.settings.searchEngine = e.target.value;
+          safeSetStorage(STORAGE_KEYS.SETTINGS, state.settings);
+          renderSearchEngines();
+        });
+
+        document.querySelectorAll('[data-glass-mode]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            applyGlassMode(btn.getAttribute('data-glass-mode'));
+            safeSetStorage(STORAGE_KEYS.SETTINGS, state.settings);
+          });
+        });
+
+        const rotToggle = document.getElementById('toggle-wallpaper-rotation');
+        rotToggle.checked = Boolean(state.settings.rotateWallpaper);
+        rotToggle.addEventListener('change', () => {
+          state.settings.rotateWallpaper = rotToggle.checked;
+          safeSetStorage(STORAGE_KEYS.SETTINGS, state.settings);
+          showToast('Wallpaper rotation ' + (rotToggle.checked ? 'enabled' : 'disabled'));
+        });
+
+        // Local wallpaper upload
+        document.getElementById('input-custom-wallpaper').addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = function (ev) {
+            const dataUrl = ev.target.result;
+            state.settings.useCustomWallpaper = true;
+            safeSetStorage(STORAGE_KEYS.CUSTOM_WALLPAPER_DATA, dataUrl);
+            safeSetStorage(STORAGE_KEYS.SETTINGS, state.settings);
+            refreshActiveWallpaper();
+            showToast('Custom wallpaper applied locally');
+          };
+          reader.readAsDataURL(file);
+        });
+
+        document.getElementById('btn-settings-add-shortcut').addEventListener('click', () => {
+          closeSettings();
+          openShortcutModal(null);
+        });
+
+        document.getElementById('btn-reset-shortcuts').addEventListener('click', () => {
+          state.customShortcuts = [];
+          safeSetStorage(STORAGE_KEYS.CUSTOM_SHORTCUTS, []);
+          renderCategoryTabs();
+          renderShortcutsAndPagination();
+          showToast('Shortcuts reset to built-in defaults');
+        });
+
+        document.getElementById('btn-reset-all-settings').addEventListener('click', () => {
+          state.settings = {
+            searchEngine: 'duckduckgo',
+            rotateWallpaper: true,
+            selectedWallpaperIndex: 0,
+            useCustomWallpaper: false,
+            glassMode: 'balanced'
+          };
+          state.customShortcuts = [];
+          safeSetStorage(STORAGE_KEYS.SETTINGS, state.settings);
+          safeSetStorage(STORAGE_KEYS.CUSTOM_SHORTCUTS, []);
+          rotToggle.checked = true;
+          applyGlassMode('balanced');
+          renderSearchEngines();
+          refreshActiveWallpaper();
+          renderCategoryTabs();
+          renderShortcutsAndPagination();
+          showToast('All settings restored to factory defaults');
+        });
+
+        // Shortcut modal events
+        document.getElementById('shortcut-form').addEventListener('submit', handleShortcutSave);
+        document.getElementById('btn-close-shortcut-modal').addEventListener('click', closeShortcutModal);
+        document.getElementById('btn-cancel-shortcut').addEventListener('click', closeShortcutModal);
+        document.getElementById('shortcut-modal-backdrop').addEventListener('click', (e) => {
+          if (e.target.id === 'shortcut-modal-backdrop') closeShortcutModal();
+        });
+
+        // Keyboard pagination & Escape key
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            closeSettings();
+            closeShortcutModal();
+            engineDropdown.classList.remove('open');
+          }
+          if (document.activeElement && ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+            return;
+          }
+          if (e.key === 'ArrowRight') {
+            const totalPages = Math.max(1, Math.ceil((getFilteredShortcuts().length + 1) / ITEMS_PER_PAGE));
+            if (state.currentPage < totalPages - 1) {
+              state.currentPage++;
+              renderShortcutsAndPagination();
+            }
+          } else if (e.key === 'ArrowLeft') {
+            if (state.currentPage > 0) {
+              state.currentPage--;
+              renderShortcutsAndPagination();
+            }
+          }
+        });
+
+        // Mobile touch swipe on shortcut grid
+        const viewport = document.getElementById('shortcuts-viewport');
+        let touchStartX = 0;
+        viewport.addEventListener('touchstart', (e) => {
+          if (e.changedTouches && e.changedTouches[0]) {
+            touchStartX = e.changedTouches[0].screenX;
+          }
+        }, { passive: true });
+
+        viewport.addEventListener('touchend', (e) => {
+          if (!e.changedTouches || !e.changedTouches[0]) return;
+          const deltaX = e.changedTouches[0].screenX - touchStartX;
+          const totalPages = Math.max(1, Math.ceil((getFilteredShortcuts().length + 1) / ITEMS_PER_PAGE));
+          if (deltaX < -45 && state.currentPage < totalPages - 1) {
+            state.currentPage++;
+            renderShortcutsAndPagination();
+          } else if (deltaX > 45 && state.currentPage > 0) {
+            state.currentPage--;
+            renderShortcutsAndPagination();
+          }
+        }, { passive: true });
+      }
+
+      /* Initialize */
+      loadState();
+      applyGlassMode(state.settings.glassMode);
+      updateClock();
+      setInterval(updateClock, 1000);
+      renderSearchEngines();
+      refreshActiveWallpaper();
+      renderCategoryTabs();
+      renderShortcutsAndPagination();
+      bindEvents();
+    });
+  </script>
+   <img src="https://count.getloli.com/@bhuvanesh-m-dev?name=bhuvanesh-m-dev&theme=ai-1&padding=0&offset=0&align=top&scale=0.1&pixelated=1&darkmode=auto" width="1" height="1" alt="" style="position:absolute;visibility:hidden;" />
+</body>
+</html>
